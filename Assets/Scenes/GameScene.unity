@@ -501,9 +501,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6decbc65e3fe5b24aacae43f9787bddf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blockPrefabs:
-  - {fileID: 2117091067310817940, guid: bd08460bd37d7774e88f6603f1180bde, type: 3}
-  - {fileID: 755216842070388032, guid: c169ad154b624b34993750e1a4aa546d, type: 3}
+  floorPrefab: {fileID: 2117091067310817940, guid: bd08460bd37d7774e88f6603f1180bde, type: 3}
+  notePrefab: {fileID: 5317301462939251969, guid: 47088cf8530616e44a0ea1e9f0e3b408, type: 3}
 --- !u!114 &1983626697
 MonoBehaviour:
   m_ObjectHideFlags: 0
