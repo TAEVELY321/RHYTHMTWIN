@@ -74,9 +74,6 @@ public class MapCreator : MonoBehaviour
         {
             // 1) 바닥은 항상 생성
             this.create_floor();
-
-            // 2) 노트는 확률적으로 별도 생성
-            this.create_note();
         }
     }
     private void create_floor()
@@ -117,6 +114,15 @@ public class MapCreator : MonoBehaviour
             this.block_creator.createBlock(note_position, Block.TYPE.NOTE);
         }
     }
+    public void CreateNoteAt(Vector3 position, Lane lane)
+    {
+        block_creator.createBlock(position, Block.TYPE.NOTE);
+    }
+    public Vector3 GetPlayerPosition()
+    {
+        return player.transform.position;
+    }
+
 
 
 }
