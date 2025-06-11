@@ -1,60 +1,72 @@
-using UnityEngine;
 using System.Collections.Generic;
-using System.IO;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class NoteScheduler : MonoBehaviour
 {
     public AudioSource musicSource;
-    public string patternFileName = "note_pattern.json";
+    public string patternFileName = "note_pattern"; // 확장자 제거
 
     private List<NoteData> notePattern = new List<NoteData>();
     private int nextNoteIndex = 0;
 
     private MapCreator mapCreator;
+    private bool resultLoaded = false;
 
     void Start()
     {
         mapCreator = GameObject.Find("GameRoot").GetComponent<MapCreator>();
         LoadNotesFromFile(patternFileName);
 
-        GameManager.StartSong(musicSource); // 음악 시작 및 시간 기준 설정
+        GameManager.StartSong(musicSource);
     }
 
     void Update()
     {
-        if (nextNoteIndex >= notePattern.Count) return;
-
-        double currentTime = AudioSettings.dspTime - GameManager.dspSongStartTime;
-
-        while (nextNoteIndex < notePattern.Count && notePattern[nextNoteIndex].time <= currentTime)
+        if (nextNoteIndex < notePattern.Count)
         {
-            SpawnNote(notePattern[nextNoteIndex]);
-            nextNoteIndex++;
+            double currentTime = AudioSettings.dspTime - GameManager.dspSongStartTime;
+
+            while (nextNoteIndex < notePattern.Count && notePattern[nextNoteIndex].time <= currentTime)
+            {
+                SpawnNote(notePattern[nextNoteIndex]);
+                nextNoteIndex++;
+            }
+        }
+
+        // 음악 종료 후 결과 화면 이동
+        if (!musicSource.isPlaying &&
+            AudioSettings.dspTime - GameManager.dspSongStartTime >= musicSource.clip.length &&
+            !resultLoaded)
+        {
+            resultLoaded = true;
+            SceneManager.LoadScene("ResultScene");
         }
     }
 
     void SpawnNote(NoteData data)
     {
-        Vector3 basePosition = mapCreator.GetPlayerPosition(); // 플레이어 위치 기준
+        Vector3 basePosition = mapCreator.GetPlayerPosition();
         basePosition.x += MapCreator.BLOCK_WIDTH * ((float)MapCreator.BLOCK_NUM_IN_SCREEN / 2.0f);
 
-        float[] laneHeights = { 0.0f, 1.0f };
+        float[] laneHeights = { 0.5f, 2.0f };
         basePosition.y = laneHeights[(int)data.lane];
 
         mapCreator.CreateNoteAt(basePosition, data.lane);
     }
 
-    void LoadNotesFromFile(string filename)
+    void LoadNotesFromFile(string filenameWithoutExtension)
     {
-        string path = Path.Combine(Application.dataPath, filename);
-        if (!File.Exists(path))
+        TextAsset jsonFile = Resources.Load<TextAsset>(filenameWithoutExtension.Replace(".json", ""));
+
+        if (jsonFile == null)
         {
-            Debug.LogError($"Note pattern file not found: {path}");
+            Debug.LogError($" JSON 파일을 Resources에서 불러오지 못했습니다: {filenameWithoutExtension}");
             return;
         }
 
-        string json = File.ReadAllText(path);
-        NotePatternWrapper wrapper = JsonUtility.FromJson<NotePatternWrapper>(json);
+        NotePatternWrapper wrapper = JsonUtility.FromJson<NotePatternWrapper>(jsonFile.text);
         notePattern = wrapper.notes;
     }
+
 }

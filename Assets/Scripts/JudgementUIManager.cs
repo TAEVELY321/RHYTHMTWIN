@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class JudgementUIManager : MonoBehaviour
 {
@@ -10,9 +11,9 @@ public class JudgementUIManager : MonoBehaviour
 
     void Start()
     {
-        // Canvas 생성
         GameObject canvasObj = new GameObject("JudgementCanvas");
         canvasObj.layer = LayerMask.NameToLayer("UI");
+
         canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.pixelPerfect = true;
@@ -26,7 +27,6 @@ public class JudgementUIManager : MonoBehaviour
 
     public void ShowJudge(string text)
     {
-        // 텍스트 오브젝트 생성
         GameObject textObj = new GameObject("JudgeText");
         textObj.transform.SetParent(canvas.transform, false);
 
@@ -35,16 +35,39 @@ public class JudgementUIManager : MonoBehaviour
         uiText.text = text;
         uiText.fontSize = 48;
         uiText.alignment = TextAnchor.MiddleCenter;
-        uiText.color = Color.white;
+        uiText.color = GetColorByJudgement(text);
 
         RectTransform rect = uiText.GetComponent<RectTransform>();
         rect.sizeDelta = new Vector2(300, 100);
 
-        // 플레이어 머리 위 위치를 화면 좌표로 변환
         Vector3 worldPos = player.transform.position + new Vector3(0, 2f, 0);
         Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
         rect.position = screenPos;
 
         Destroy(textObj, 1.0f);
     }
+
+    Color GetColorByJudgement(string text)
+    {
+        if (text.ToUpper().Contains("MISS"))
+            return Color.red;
+
+        if (text.ToUpper().Contains("PERFECT"))
+        {
+            List<Color> possibleColors = new List<Color>
+            {
+                Color.yellow,
+                Color.green,
+                Color.cyan,
+                Color.magenta,
+                new Color(1.0f, 0.5f, 0.0f), // orange
+                new Color(0.6f, 0.4f, 1.0f)  // violet
+            };
+
+            return possibleColors[Random.Range(0, possibleColors.Count)];
+        }
+
+        return Color.white;
+    }
 }
+

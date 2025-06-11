@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerControl : CharacterBase
 {
     public static float MOVE_SPEED = 15.0f;
-    public static float MAX_Y = 1.0f;
+    public static float MAX_Y = 2.5f;
     public static float MIN_Y = 0.0f;
 
     public enum STEP
